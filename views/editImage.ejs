@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,19 +11,20 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+    />
   </head>
   <style>
+    body {
+      max-width: 80vw;
+      margin: 0 auto;
+    }
     ul {
       display: flex;
       gap: 1rem;
       justify-content: center;
-      li {
-        list-style: none;
-        background-color: lightgreen;
-
-        padding: 0.5rem;
-        border-radius: 10px;
-      }
     }
     .google-btn {
       background: red;
@@ -43,10 +44,11 @@
     }
     .imgc {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 1rem;
-      button {
+      /* button {
         background-color: lightgreen;
         padding: 0.3rem 0.5rem;
         border: none;
@@ -55,26 +57,41 @@
         &:hover {
           scale: 105%;
         }
+      } */
+    }
+    .li {
+      list-style: none;
+      background-color: var(--bs-info);
+      a {
+        text-decoration: none;
+        color: black;
       }
+
+      padding: 0.5rem;
+      border-radius: 10px;
     }
   </style>
   <body>
-    <nav>
+    <nav
+      class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3"
+    >
       <ul>
         <% if(data){%>
-        <li><a href="/auth/logout">Logout</a></li>
-        <li><a href="/user/profile">Profile</a></li>
-        <li><a href="/">Home</a></li>
+        <li class="li"><a href="/auth/logout">Logout</a></li>
+        <li class="li"><a href="/user/profile">Profile</a></li>
+        <li class="li"><a href="/">Home</a></li>
         <% } else{%>
-        <li><a href="/auth/login">Login</a></li>
+        <li class="li"><a href="/auth/login">Login</a></li>
         <% }%>
       </ul>
     </nav>
     <main>
       <div class="imgc">
         <img id="image" src="<%= data %>" alt="<%= data.name %>" />
-        <button id="cropButton">Crop Image</button>
-        <button id="saveButton">Save Image</button>
+        <div class="buttonContainer">
+          <button class="btn btn-primary" id="cropButton">Crop Image</button>
+          <button class="btn btn-success" id="saveButton">Save Image</button>
+        </div>
       </div>
       <div class="dimensions">
         <h3 id="height"></h3>
@@ -137,33 +154,33 @@
           const croppedCanvas = cropper.getCroppedCanvas();
           console.log(croppedCanvas);
 
-            if (croppedCanvas) {
-              croppedCanvas.toBlob(async (blob) => {
-                const formData = new FormData();
-                formData.append('croppedImage', blob, 'cropped_image.jpeg');
-                formData.append('idx', 1); // Provide image index to update
+          if (croppedCanvas) {
+            croppedCanvas.toBlob(async (blob) => {
+              const formData = new FormData();
+              formData.append('croppedImage', blob, 'cropped_image.jpeg');
+              formData.append('idx', 1); // Provide image index to update
 
-                try {
-                  const response = await fetch(
-                    '/user/profile/updateProfileImage',
-                    {
-                      method: 'PATCH',
-                      body: formData,
-                    }
-                  );
-
-                  if (response.status === 200) {
-                    console.log('Image updated successfully');
-                    window.location.href = '/user/profile';
-                    // Optionally, handle the response or perform additional actions
-                  } else {
-                    console.error('Failed to update image');
+              try {
+                const response = await fetch(
+                  '/user/profile/updateProfileImage',
+                  {
+                    method: 'PATCH',
+                    body: formData,
                   }
-                } catch (error) {
-                  console.error('Error updating image:', error);
+                );
+
+                if (response.status === 200) {
+                  console.log('Image updated successfully');
+                  window.location.href = '/user/profile';
+                  // Optionally, handle the response or perform additional actions
+                } else {
+                  console.error('Failed to update image');
                 }
-              });
-            }
+              } catch (error) {
+                console.error('Error updating image:', error);
+              }
+            });
+          }
         });
     </script>
   </body>
