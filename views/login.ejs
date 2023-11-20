@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <style>
+    ul {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      li {
+        list-style: none;
+        background-color: lightgreen;
+
+        padding: 0.5rem;
+        border-radius: 10px;
+      }
+    }
+    .google-btn {
+      background: red;
+      padding: 0.5rem;
+      border-radius: 10px;
+      &:hover{
+        scale: 105%;
+      }
+    }
+    main{
+        text-align: center;
+    }
+  </style>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="/auth/login">Login</a></li>
+        <li><a href="/auth/register">Register</a></li>
+      </ul>
+    </nav>
+    <main>
+      Login using...
+      <a class="google-btn" href="/auth/google">Google</a>
+    </main>
+  </body>
+</html>

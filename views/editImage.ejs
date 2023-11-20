@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+      integrity="sha512-hvNR0F/e2J7zPPfLC9auFe3/SE0yG4aJCOd/qxew74NN7eyiSKjr7xJJMu1Jy2wf7FXITpWS1E/RY8yzuXN7VA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <style>
+    ul {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      li {
+        list-style: none;
+        background-color: lightgreen;
+
+        padding: 0.5rem;
+        border-radius: 10px;
+      }
+    }
+    .google-btn {
+      background: red;
+      padding: 0.5rem;
+      border-radius: 10px;
+      &:hover {
+        scale: 105%;
+      }
+    }
+    main {
+      text-align: center;
+      img {
+        width: 300px;
+        height: 300px;
+        border-radius: 100%;
+      }
+    }
+    .imgc {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      button {
+        background-color: lightgreen;
+        padding: 0.3rem 0.5rem;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        &:hover {
+          scale: 105%;
+        }
+      }
+    }
+  </style>
+  <body>
+    <nav>
+      <ul>
+        <% if(data){%>
+        <li><a href="/auth/logout">Logout</a></li>
+        <li><a href="/user/profile">Profile</a></li>
+        <li><a href="/">Home</a></li>
+        <% } else{%>
+        <li><a href="/auth/login">Login</a></li>
+        <% }%>
+      </ul>
+    </nav>
+    <main>
+      <div class="imgc">
+        <img id="image" src="<%= data %>" alt="<%= data.name %>" />
+        <button id="cropButton">Crop Image</button>
+        <button id="saveButton">Save Image</button>
+      </div>
+      <div class="dimensions">
+        <h3 id="height"></h3>
+        <h3 id="width"></h3>
+      </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+      const image = document.getElementById('image');
+      const cropper = new Cropper(image, {
+        // Configure Cropper options as needed
+        aspectRatio: 9 / 9,
+        minContainerWidth: 400,
+        minContainerHeight: 800,
+        // Other Cropper configurations...
+      });
+
+      document.getElementById('cropButton').addEventListener('click', () => {
+        // Perform cropping action
+        const img = cropper.crop();
+        console.log(cropper.crop());
+        document.getElementById('height').innerText = img.cropBoxData.height;
+        document.getElementById('width').innerText = img.cropBoxData.width;
+      });
+
+      async function cropImage(img) {
+        try {
+          console.log(img);
+          const height = document.getElementById('height').innerText;
+          const width = document.getElementById('width').innerText;
+          await sharp(img)
+            .extract({ width: width, height: height })
+            .toFile('cropped.png');
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      async function resizeImage(img) {
+        try {
+          await sharp(img)
+            .resize({
+              width: 150,
+              height: 97,
+            })
+            .toFormat('webp', { mozjpeg: true })
+            .toFile('resized-compressed.jpeg');
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      async function getMetadata() {
+        const metadata = await sharp('sammy.png').metadata();
+        console.log(metadata);
+      }
+
+      document
+        .getElementById('saveButton')
+        .addEventListener('click', async () => {
+          const croppedCanvas = cropper.getCroppedCanvas();
+          console.log(croppedCanvas);
+
+            if (croppedCanvas) {
+              croppedCanvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('croppedImage', blob, 'cropped_image.jpeg');
+                formData.append('idx', 1); // Provide image index to update
+
+                try {
+                  const response = await fetch(
+                    '/user/profile/updateProfileImage',
+                    {
+                      method: 'PATCH',
+                      body: formData,
+                    }
+                  );
+
+                  if (response.status === 200) {
+                    console.log('Image updated successfully');
+                    window.location.href = '/user/profile';
+                    // Optionally, handle the response or perform additional actions
+                  } else {
+                    console.error('Failed to update image');
+                  }
+                } catch (error) {
+                  console.error('Error updating image:', error);
+                }
+              });
+            }
+        });
+    </script>
+  </body>
+</html>
